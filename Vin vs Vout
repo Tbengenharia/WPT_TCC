@@ -1,0 +1,70 @@
+% Simulação de sistema de Transmissão de energia sem fio feito por Tiago Pereira Buffulin,
+# Trabalho de conclusão de curso (TCC) IFSP-PEP
+# Valores de tensão de entrada e saida
+
+clc;
+clear;
+
+%%----------------------------------------------------------------------------%%
+                    %DEFININDO AS CONSTANTES E OS PARAMETROS
+                                    %DO SISTEMA;
+%%----------------------------------------------------------------------------%%
+
+R = 8.17;                  %Resistencia de carga (ohms)
+mu0 = pi*4e-7;          %Constante da permeabilidade do vácuo;
+f0 = 20e6;              %freq de ressonancia em Mhz (SEMPRE EM MHZ!)
+w0 = 2*pi*f0;           %freq angular (rad/s)
+L1 = 1.2e-6;             %Indutancia primeira bobina (H)
+L2 = 1.2e-6;             %Indutancia segunda bobina (H)
+d = 10e-2;              %Distância em metros
+t = linspace(0, 10, 100); %ir de 0 a 10s
+
+%Dados para criação do espiral de Arquimedes;
+Rout = 1; %outer radius
+Rin = 0.5; %raio interno (sempre a metade do externo)./
+n = 5.6; %numero de voltas
+
+
+Theta = linspace(0, n*2*pi, 1000); %espiral de arquimedes
+
+%%----------------------------------------------------------------------------%%
+                             %EQUAÇÕES E CALCULOS;
+%%----------------------------------------------------------------------------%%
+
+%Q1 = R*sqrt(L1)/0.5;    % Fator de qualidade da primeira bobina
+%Q2 = R*sqrt(L2)/0.5;    % Fator de qualidade da segunda bobina
+
+C1 = 1/(w0^2*L1);       %Capacitancia do primeiro capacitor (F)
+C2 = 1/(w0^2*L2);       %Capacitancia do segundo capacitor (F)
+
+Z1 = 1i*w0*L1 + 1/(1i*w0*C1);   % Impedancia do primeiro circuito
+Z2 = 1i*w0*L2 + 1/(1i*w0*C2);   % Impedancia do segundo circuito
+
+A = 2.08e-3; %area de secção transversal em metros.
+M = (mu0*n^2*A^2)/(2*pi*d^3); %Calcular indutancia mútua;
+Zm = j*2*pi*f0*M/(R + j*2*pi*f0*L1);   % Impedancia gerada pela indutancia mutua
+
+%Espiral de arquimedes calculo
+x1 = (Rin + Rout*Theta) .* cos(Theta);
+y1 = (Rin + Rout*Theta) .* sin(Theta);
+
+%%----------------------------------------------------------------------------%%
+                %TENSÂO DE ENTRADA E SAIDA EM FUNÇÂO DO TEMPO;
+%%----------------------------------------------------------------------------%%
+
+Vin = 10*sin(2*pi*f0*t); %Tensão de entrada
+Vout = Vin*Zm/(Z1 + Zm + Z2); %Tensão de saida
+
+% Resultados tensão entrada e saida em função do tempo.
+figure
+%subplot(2,1,1) %(linhas, colunas, indice)
+plot(t, Vin)
+title('Tensão de entrada')
+xlabel('Tempo [s]')
+ylabel('Tensão [V]')
+figure
+%subplot(2,1,2)
+plot(t, Vout) % função abs = magnitude (ex: Zsqrt (x^2+y^2) )
+title('Tensão de saida')
+xlabel('Tempo [s]')
+ylabel('Tensão [V]')
